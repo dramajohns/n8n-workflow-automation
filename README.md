@@ -1,6 +1,6 @@
 # n8n Workflow Automation Project
 
-Personal learning and development project for n8n workflow automation as part of preparation for the Software Engineer role at Interzero.
+Personal learning and development project for n8n workflow automation using CLAUDE.
 
 ## Quick Start
 
