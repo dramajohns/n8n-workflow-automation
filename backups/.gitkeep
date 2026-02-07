@@ -1,0 +1,2 @@
+# This file ensures the backups directory exists in Git
+# Backup files are excluded via .gitignore

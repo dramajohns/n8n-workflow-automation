@@ -1,0 +1,68 @@
+{
+  "name": "Pattern 1: Webhook Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "webhook-endpoint",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "auto-generated",
+      "notes": "External trigger - receives webhook requests"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Access webhook data\nconst body = $json.body;\nconst headers = $json.headers;\nconst query = $json.query;\n\n// Process and validate data\nif (!body || !body.email) {\n  return [{ json: { error: 'Missing required field: email' } }];\n}\n\n// Transform data\nreturn [{\n  json: {\n    email: body.email.toLowerCase(),\n    timestamp: new Date().toISOString(),\n    source: 'webhook'\n  }\n}];"
+      },
+      "name": "Process Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "notes": "Process and validate incoming data"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, processed: $json } }}"
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "notes": "Send response back to caller"
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Process Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Data": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

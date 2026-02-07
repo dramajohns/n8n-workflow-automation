@@ -1,0 +1,35 @@
+# Environment variables and secrets
+.env
+*.env
+!.env.example
+
+# n8n backups (contain complete workflow data)
+backups/*
+!backups/.gitkeep
+
+# Credentials (never commit)
+credentials.json
+*-credentials.json
+
+# Logs
+logs/
+*.log
+
+# Windows specific
+Thumbs.db
+desktop.ini
+
+# Node modules (if using local dev)
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Editor directories
+.vscode/
+.idea/
+
+# Claude local settings (may contain API keys)
+.claude/settings.local.json

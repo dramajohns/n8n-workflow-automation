@@ -1,0 +1,130 @@
+{
+  "name": "Pattern 5: Scheduled Tasks",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "name": "Weekly Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "notes": "Runs every Monday at 9 AM"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.example.com/weekly-data",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Fetch Weekly Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 300],
+      "notes": "Batch fetch data"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process batch data\nconst items = $json.data || [];\n\n// Calculate weekly summary\nconst summary = {\n  totalItems: items.length,\n  weekStart: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),\n  weekEnd: new Date().toISOString(),\n  items: items.map(item => ({\n    id: item.id,\n    value: item.value,\n    status: item.status\n  }))\n};\n\nreturn [{ json: summary }];"
+      },
+      "name": "Process Batch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "notes": "Process and aggregate data"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Generate report\nconst data = $json;\n\nconst report = `\nWeekly Report\n=============\n\nPeriod: ${new Date(data.weekStart).toLocaleDateString()} - ${new Date(data.weekEnd).toLocaleDateString()}\nTotal Items: ${data.totalItems}\n\nDetails:\n${data.items.map((item, i) => `${i + 1}. ID: ${item.id}, Value: ${item.value}, Status: ${item.status}`).join('\\n')}\n\nGenerated: ${new Date().toISOString()}\n`;\n\nreturn [{\n  json: {\n    report: report,\n    data: data\n  }\n}];"
+      },
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "notes": "Create formatted report"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"text\": $json.report } }}",
+        "options": {}
+      },
+      "name": "Send Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1050, 300],
+      "notes": "Send report to Slack or email"
+    }
+  ],
+  "connections": {
+    "Weekly Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Weekly Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Weekly Data": {
+      "main": [
+        [
+          {
+            "node": "Process Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Batch": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "Send Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
