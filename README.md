@@ -1,6 +1,10 @@
 # n8n Workflow Automation Project
 
+<<<<<<< HEAD
 Personal learning and development project for n8n workflow automation
+=======
+Personal learning and development project for n8n workflow automation using CLAUDE.
+>>>>>>> 84998d556a510174a5808d61e176c4070de73094
 
 ## Quick Start
 
